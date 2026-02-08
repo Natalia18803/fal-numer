@@ -23,9 +23,10 @@ app.get('/', (req, res) => {
 // Ruta de health check para verificar conexión a la base de datos
 app.get('/api/health', async (req, res) => {
     try {
-        const { getClient } = require('./database/cnx-mongo');
-        const client = getClient();
-        if (client && client.topology && client.topology.isConnected()) {
+        const mongoose = require('mongoose');
+        const state = mongoose.connection.readyState;
+        // 0 = desconectado, 1 = conectado, 2 = conectando, 3 = desconectando
+        if (state === 1) {
             res.status(200).json({ status: 'OK', message: 'Base de datos conectada' });
         } else {
             res.status(500).json({ status: 'ERROR', message: 'Base de datos no conectada' });

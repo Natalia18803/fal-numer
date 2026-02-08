@@ -1,12 +1,15 @@
-import { validationResult } from 'express-validator';
-import {check} from 'express-validator';
+const { validationResult } = require('express-validator');
 
-export const validarCampos = (req, res, next) => {
- // validationResult extrae los errores acumulados por check()
- const errors = validationResult(req);
+const validarCampos = (req, res, next) => {
+    // validationResult extrae los errores acumulados por check()
+    const errors = validationResult(req);
 
- if (!errors.isEmpty()) {
- return res.status(400).json(errors);
- }
- next(); // Si no hay errores, sigue al controlador
-}
+    if (!errors.isEmpty()) {
+        return res.status(400).json(errors);
+    }
+    next(); // Si no hay errores, sigue al controlador
+};
+
+module.exports = {
+    validarCampos
+};

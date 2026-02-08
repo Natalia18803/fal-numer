@@ -14,6 +14,15 @@ const generarContenidoIA = (tipo, fecha_nacimiento) => {
   }
 };
 
+exports.getAllLecturas = async (req, res) => {
+  try {
+    const lecturas = await Lectura.find().sort({ fecha_lectura: -1 });
+    res.json({ lecturas });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 exports.generarLecturaPrincipal = async (req, res) => {
   try {
     const usuario_id = req.params.usuario_id;
