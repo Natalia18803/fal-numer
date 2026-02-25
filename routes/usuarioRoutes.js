@@ -4,6 +4,10 @@ const usuarioControllers = require('../controllers/usuarioControllers');
 const { check } = require('express-validator');
 const { validarCampos } = require('../middlewares/validar-campos');
 const { existeUsuarioPorId, validarEmail } = require('../helpers/usuario');
+const { validarJWT } = require('../middlewares/validar-jwt');
+
+// Todas las rutas de usuarios requieren autenticación
+router.use(validarJWT);
 
 router.get('/', usuarioControllers.getAllUsuarios);
 router.get('/:id', [
@@ -11,13 +15,6 @@ router.get('/:id', [
   check('id').custom(existeUsuarioPorId),
   validarCampos
 ], usuarioControllers.getUsuarioById);
-router.post('/', [
-  check('nombre', 'El nombre es obligatorio').not().isEmpty().trim(),
-  check('email', 'El email no es válido').isEmail().normalizeEmail(),
-  check('email').custom(validarEmail),
-  check('fecha_nacimiento', 'La fecha de nacimiento es obligatoria').not().isEmpty().isISO8601().toDate(),
-  validarCampos
-], usuarioControllers.createUsuario);
 router.put('/:id', [
   check('id', 'No es un ID válido').isMongoId(),
   check('id').custom(existeUsuarioPorId),

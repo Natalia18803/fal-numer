@@ -11,6 +11,7 @@ app.use(express.json());
 conectarMongo();
 
 // Rutas
+app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/usuarios', require('./routes/usuarioRoutes'));
 app.use('/api/pagos', require('./routes/pagoRoutes'));
 app.use('/api/lecturas', require('./routes/lecturaRoutes'));

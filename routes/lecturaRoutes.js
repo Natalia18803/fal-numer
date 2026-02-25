@@ -4,6 +4,10 @@ const lecturaControllers = require('../controllers/lecturaControllers');
 const { check } = require('express-validator');
 const { validarCampos } = require('../middlewares/validar-campos');
 const { existeUsuarioPorId } = require('../helpers/usuario');
+const { validarJWT } = require('../middlewares/validar-jwt');
+
+// Todas las rutas de lecturas requieren autenticación
+router.use(validarJWT);
 
 // GET todas las lecturas
 router.get('/', lecturaControllers.getAllLecturas);

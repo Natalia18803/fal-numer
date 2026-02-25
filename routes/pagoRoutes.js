@@ -4,6 +4,10 @@ const pagoControllers = require('../controllers/pagoControllers');
 const { check } = require('express-validator');
 const { validarCampos } = require('../middlewares/validar-campos');
 const { existeUsuarioPorId } = require('../helpers/usuario');
+const { validarJWT } = require('../middlewares/validar-jwt');
+
+// Todas las rutas de pagos requieren autenticación
+router.use(validarJWT);
 
 router.get('/', pagoControllers.getAllPagos);
 router.get('/:usuario_id', [
