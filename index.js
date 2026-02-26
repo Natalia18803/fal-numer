@@ -44,8 +44,10 @@ app.post('/api/auth/registro', async (req, res) => {
             nombre,
             email,
             password: hashedPassword,
-            fecha_nacimiento
+            fecha_nacimiento,
+            estado: 'activo'
         });
+
 
         await usuario.save();
 
