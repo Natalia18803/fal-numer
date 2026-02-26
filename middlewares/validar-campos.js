@@ -1,13 +1,16 @@
 const { validationResult } = require('express-validator');
 
 const validarCampos = (req, res, next) => {
-    // validationResult extrae los errores acumulados por check()
-    const errors = validationResult(req);
+    const errores = validationResult(req);
 
-    if (!errors.isEmpty()) {
-        return res.status(400).json(errors);
+    if (!errores.isEmpty()) {
+        return res.status(400).json({
+            ok: false,
+            errores: errores.array()
+        });
     }
-    next(); // Si no hay errores, sigue al controlador
+    
+    next();
 };
 
 module.exports = {

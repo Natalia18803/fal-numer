@@ -5,6 +5,7 @@ const existeUsuarioPorId = async (id) => {
     if (!usuario) {
         throw new Error(`El usuario con ID ${id} no existe`);
     }
+    return true;
 };
 
 const validarEmail = async (email) => {
@@ -12,6 +13,7 @@ const validarEmail = async (email) => {
     if (existeEmail) {
         throw new Error(`El email ${email} ya está registrado`);
     }
+    return true;
 };
 
 module.exports = {

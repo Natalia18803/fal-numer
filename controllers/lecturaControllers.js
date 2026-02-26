@@ -4,8 +4,8 @@ const Usuario = require('../models/usuario');
 // Función simulada para generar contenido de IA
 const generarContenidoIA = (tipo, fecha_nacimiento) => {
   if (tipo === 'principal') {
-    const dia = fecha_nacimiento.getDate();
-    const mes = fecha_nacimiento.getMonth() + 1;
+    const dia = parseInt(fecha_nacimiento.getDate(), 10);
+    const mes = parseInt(fecha_nacimiento.getMonth() + 1, 10);
     const numero = dia + mes;
     return `Tu número de vida es ${numero}. Este número representa tu camino espiritual y tus lecciones de vida.`;
   } else {

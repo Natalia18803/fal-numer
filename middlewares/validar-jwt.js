@@ -2,35 +2,46 @@ const jwt = require('jsonwebtoken');
 const Usuario = require('../models/usuario');
 
 const validarJWT = async (req, res, next) => {
+    // 1. Obtener el token del header
+    const token = req.header('x-token');
+    
+    if (!token) {
+        return res.status(401).json({ 
+            error: 'No hay token en la petición' 
+        });
+    }
+
     try {
-        // Obtener token del header
-        const token = req.header('x-token');
+        // 2. Verificar el token
+        const { id } = jwt.verify(token, process.env.JWT_SECRET || 'secreto-temporal');
         
-        if (!token) {
-            return res.status(401).json({ error: 'No hay token en la petición' });
-        }
+        // 3. Buscar el usuario en la BD
+        const usuario = await Usuario.findById(id);
 
-        // Verificar token
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secreto-temporal');
-        
-        // Obtener usuario del token
-        const usuario = await Usuario.findById(decoded.id);
-        
         if (!usuario) {
-            return res.status(401).json({ error: 'Token no válido - usuario no existe' });
+            return res.status(401).json({ 
+                error: 'Token no válido - usuario no existe en BD' 
+            });
         }
 
-        // Agregar usuario a la request
-        req.usuario = {
-            id: usuario._id,
-            nombre: usuario.nombre,
-            email: usuario.email,
-            estado: usuario.estado
-        };
+        // 4. Verificar si el usuario está activo (opcional)
+        if (usuario.estado === 'inactivo') {
+            return res.status(401).json({ 
+                error: 'Token no válido - usuario con estado inactivo' 
+            });
+        }
 
+        // 5. Inyectar la información del usuario en la petición
+        req.usuario = usuario;
+        
+        // ¡Crucial! Sin esto, la petición se queda "colgada"
         next();
+
     } catch (error) {
-        res.status(401).json({ error: 'Token no válido' });
+        console.log(error);
+        res.status(401).json({ 
+            error: 'Token no válido o expirado' 
+        });
     }
 };
 

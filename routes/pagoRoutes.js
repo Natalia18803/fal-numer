@@ -10,6 +10,15 @@ const { validarJWT } = require('../middlewares/validar-jwt');
 router.use(validarJWT);
 
 router.get('/', pagoControllers.getAllPagos);
+
+// Rutas con segmentos estáticos (deben ir ANTES de /:usuario_id)
+router.get('/estado/:usuario_id', [
+  check('usuario_id', 'No es un ID válido').isMongoId(),
+  check('usuario_id').custom(existeUsuarioPorId),
+  validarCampos
+], pagoControllers.getEstadoMembresia);
+
+// Ruta genérica con parámetro (debe ir AL FINAL)
 router.get('/:usuario_id', [
   check('usuario_id', 'No es un ID válido').isMongoId(),
   check('usuario_id').custom(existeUsuarioPorId),
@@ -23,11 +32,5 @@ router.post('/', [
   check('metodo', 'El método de pago es obligatorio').isIn(['tarjeta', 'efectivo', 'transferencia']),
   validarCampos
 ], pagoControllers.createPago);
-
-router.get('/estado/:usuario_id', [
-  check('usuario_id', 'No es un ID válido').isMongoId(),
-  check('usuario_id').custom(existeUsuarioPorId),
-  validarCampos
-], pagoControllers.getEstadoMembresia);
 
 module.exports = router;
