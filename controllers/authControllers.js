@@ -1,8 +1,8 @@
 const Usuario = require('../models/usuario');
 const jwt = require('jsonwebtoken');
 
-const generarToken = (id) => {
-    return jwt.sign({ id }, process.env.JWT_SECRET || 'secreto-temporal', {
+const generarToken = (id, rol) => {
+    return jwt.sign({ id, rol }, process.env.JWT_SECRET || 'secreto-temporal', {
         expiresIn: '30d'
     });
 };
@@ -23,13 +23,14 @@ const registro = async (req, res) => {
             nombre,
             email,
             password,
-            fecha_nacimiento
+            fecha_nacimiento,
+            rol: 'usuario' // Por defecto, los nuevos usuarios son 'usuario'
         });
 
         await usuario.save();
 
-        // Generar token
-        const token = generarToken(usuario._id);
+        // Generar token con el rol
+        const token = generarToken(usuario._id, usuario.rol);
 
         res.status(201).json({
             message: 'Usuario registrado exitosamente',
@@ -38,7 +39,8 @@ const registro = async (req, res) => {
                 id: usuario._id,
                 nombre: usuario.nombre,
                 email: usuario.email,
-                estado: usuario.estado
+                estado: usuario.estado,
+                rol: usuario.rol
             }
         });
     } catch (error) {
@@ -68,8 +70,8 @@ const login = async (req, res) => {
             return res.status(401).json({ error: 'Credenciales inválidas' });
         }
 
-        // Generar token
-        const token = generarToken(usuario._id);
+        // Generar token con el rol
+        const token = generarToken(usuario._id, usuario.rol);
 
         res.json({
             message: 'Login exitoso',
@@ -78,7 +80,8 @@ const login = async (req, res) => {
                 id: usuario._id,
                 nombre: usuario.nombre,
                 email: usuario.email,
-                estado: usuario.estado
+                estado: usuario.estado,
+                rol: usuario.rol
             }
         });
     } catch (error) {

@@ -27,6 +27,11 @@ const usuarioSchema = new mongoose.Schema({
         enum: ['activo', 'inactivo'],
         default: 'inactivo'
     },
+    rol: {
+        type: String,
+        enum: ['usuario', 'admin'],
+        default: 'usuario'
+    },
     fecha_registro: {
         type: Date,
         default: Date.now

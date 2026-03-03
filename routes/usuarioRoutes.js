@@ -7,15 +7,16 @@ const { check } = require('express-validator');
 const { validarCampos } = require('../middlewares/validar-campos');
 const { existeUsuarioPorId, validarEmail } = require('../helpers/usuario');
 const { validarJWT } = require('../middlewares/validar-jwt');
+const { validarRol } = require('../middlewares/validar-rol');
 
 // ==========================================
 //  RUTAS PÚBLICAS (No requieren Token)
 // ==========================================
 
-// Registro de usuario - SIN validaciones temporalemente para diagnosticar
+// Registro de usuario
 router.post('/registro', usuarioControllers.registro);
 
-// Login de usuario - SIN validaciones temporalemente para diagnosticar  
+// Login de usuario
 router.post('/login', usuarioControllers.login);
 
 
@@ -26,10 +27,38 @@ router.post('/login', usuarioControllers.login);
 // A partir de aquí, todas las rutas pasan por la validación de Token
 router.use(validarJWT);
 
-// Obtener todos los usuarios
-router.get('/', usuarioControllers.getAllUsuarios);
+// ==========================================
+//  RUTAS DE USUARIOS - SOLO ADMIN
+// ==========================================
 
-// Obtener usuario por ID
+// Obtener todos los usuarios - Solo admin
+router.get('/', validarRol('admin'), usuarioControllers.getAllUsuarios);
+
+// Actualizar estado del usuario - Solo admin
+router.patch('/:id/estado', 
+    check('id', 'No es un ID válido').isMongoId(),
+    check('id').custom(existeUsuarioPorId),
+    check('estado', 'El estado es obligatorio').not().isEmpty().isIn(['activo', 'inactivo']),
+    validarCampos,
+    validarRol('admin'),
+    usuarioControllers.updateEstadoUsuario
+);
+
+// Eliminar usuario - Solo admin
+router.delete('/:id', 
+    check('id', 'No es un ID válido').isMongoId(),
+    check('id').custom(existeUsuarioPorId),
+    validarCampos,
+    validarRol('admin'),
+    usuarioControllers.deleteUsuario
+);
+
+
+// ==========================================
+//  RUTAS DE USUARIOS - USUARIO Y ADMIN
+// ==========================================
+
+// Obtener usuario por ID - Propio usuario o admin
 router.get('/:id', 
     check('id', 'No es un ID válido').isMongoId(),
     check('id').custom(existeUsuarioPorId),
@@ -37,7 +66,7 @@ router.get('/:id',
     usuarioControllers.getUsuarioById
 );
 
-// Actualizar usuario
+// Actualizar usuario - Propio usuario o admin
 router.put('/:id', 
     check('id', 'No es un ID válido').isMongoId(),
     check('id').custom(existeUsuarioPorId),
@@ -46,23 +75,6 @@ router.put('/:id',
     check('fecha_nacimiento', 'Formato de fecha inválido').optional().isISO8601().toDate(),
     validarCampos,
     usuarioControllers.updateUsuario
-);
-
-// Actualizar estado del usuario
-router.patch('/:id/estado', 
-    check('id', 'No es un ID válido').isMongoId(),
-    check('id').custom(existeUsuarioPorId),
-    check('estado', 'El estado es obligatorio').not().isEmpty().isIn(['activo', 'inactivo']),
-    validarCampos,
-    usuarioControllers.updateEstadoUsuario
-);
-
-// Eliminar usuario
-router.delete('/:id', 
-    check('id', 'No es un ID válido').isMongoId(),
-    check('id').custom(existeUsuarioPorId),
-    validarCampos,
-    usuarioControllers.deleteUsuario
 );
 
 module.exports = router;
